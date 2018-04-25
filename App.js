@@ -1,5 +1,13 @@
 import React from 'react';
-import { Dimensions, StyleSheet, Text, View, Button } from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  Platform
+} from 'react-native';
 import { GestureHandler } from 'expo';
 
 const { DrawerLayout } = GestureHandler;
@@ -21,13 +29,13 @@ export default class App extends React.Component {
         })
         : 0;
     return {
-      paddingVertical: margin,
+      marginVertical: margin,
     }
   }
 
   renderDrawer(progressValue) {
     if (!this.state.progressValue) {
-      this.setState({ progressValue });
+      setTimeout(() => this.setState({ progressValue }), 100);
     }
 
     return (
@@ -39,32 +47,50 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <DrawerLayout
-        ref={drawer => {this.drawer = drawer;}}
-        renderNavigationView={(pv) => this.renderDrawer(pv)}
-        drawerWidth={Dimensions.get('window').width * 0.75}
-        drawerType="back"
-        overlayColor="#00000000"
-      >
-        <View style={[styles.container, this.getAnimatedStyles()]}>
-          <Button onPress={() => this.drawer.openDrawer()} title="Open drawer"/>
-        </View>
-      </DrawerLayout>
+      <View style={styles.container}>
+        <DrawerLayout
+          ref={drawer => { this.drawer = drawer; }}
+          renderNavigationView={(pv) => this.renderDrawer(pv)}
+          drawerWidth={Dimensions.get('window').width * 0.75}
+          drawerType="back"
+          overlayColor="#00000000"
+          useNativeAnimations={false}
+        >
+          <Animated.View style={[styles.main, this.getAnimatedStyles()]}>
+            <Button onPress={() => this.drawer.openDrawer()} title="Open drawer"/>
+          </Animated.View>
+        </DrawerLayout>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  drawer: {
+  container: {
     flex: 1,
     backgroundColor: '#F95A570C',
+  },
+  drawer: {
+    flex: 1,
+    //backgroundColor: '#F95A570C',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  container: {
+  main: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
 });
